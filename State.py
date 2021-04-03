@@ -44,10 +44,12 @@ class State:
         return (other.id in self.next["#"] and self.id in other.next["#"]) or result
 
     def xfusion(self, other):
-        for i in range(len(self.next)):
+        for i in self.next.keys():
             if self.next[i] != other.next[i]:
                 not_inTpl = set(self.next[i]) - set(other.next[i])
                 self.next[i] = list(self.next[i]) + list(not_inTpl)
+        if self.id in self.next["#"]:
+            self.next["#"].remove(self.id)
 
 
     def __str__(self):
