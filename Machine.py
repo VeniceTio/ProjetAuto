@@ -296,7 +296,11 @@ class Machine:
     def synchroLink(self, origin, destination):
         for link in self.links:
             if link.destination.id == origin.id:
-                link.changeDest(destination)
+                anotherLink = self.isLink(link.origin,destination)
+                if anotherLink[0]:
+                    anotherLink[1].add(link)
+                else:
+                    link.changeDest(destination)
 
     def updateStateStatus(self, pfrom, pto):
         if pfrom.isInitial():

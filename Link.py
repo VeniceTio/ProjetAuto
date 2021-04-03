@@ -23,6 +23,6 @@ class Link:
     def __str__(self):
         return "go from -{}- to -{}- with -{}".format(self.origin.id, self.destination.id, self.tag)
 
-    def __add__(self, other):
+    def add(self, other):
         not_inTpl = set(self.tag) - set(other.tag)
         self.tag = list(self.tag) + list(not_inTpl)
