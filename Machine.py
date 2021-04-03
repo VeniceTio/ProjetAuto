@@ -279,10 +279,34 @@ class Machine:
 
         """
         lks = []
+        hasChange = True
+        while hasChange:
+            hasChange = False
+            for i in range(len(self.states)):
+                for j in range(len(self.states)):
+                    if i !=j:
+                        if self.states[i] == self.states[j]:
+                            self.updateStateStatus(self.states[i], self.states[j])
+                            self.states[j].xfusion(self.states[i])
+                            self.synchroLink(self.states[i], self.states[j])
+                            hasChange = True
+
+    def synchroLink(self, origin, destination):
         for link in self.links:
-            if link.tag == "#":
-                for lik in self.links:
-                    if link != lik and link.destination == lik.origin or link.destination ==
+            if link.destination.id == origin.id:
+                link.changeDest(destination)
+
+    def updateStateStatus(self, pfrom, pto):
+        if pfrom.isInitial():
+            if not pto.isInitial():
+                pto.initial = True
+                self.initial.append(pto.id)
+            self.initial.remove(pfrom.id)
+        if pfrom.isFinal():
+            if not pto.isFinal():
+                pto.final = True
+                self.final.append(pto.id)
+            self.final.remove(pfrom.id)
 
     def fusionState(self, origin, destination):
         """Fusion de deux états
@@ -301,20 +325,11 @@ class Machine:
         None
 
         """
-        if origin.isInit():
-            if not destination.isInit():
-                destination.initial = True
-                self.initial.append(destination.id)
-            self.initial.remove(origin.id)
-        if origin.isFinal():
-            if not destination.isFinal():
-                destination.final = True
-                self.final.append(destination.id)
-            self.final.remove(origin.id)
+        self.updateStateStatus(origin, destination)
         for link in self.links:
             if link.origin.id == origin.id and link.destination.id == destination.id:
                 if "#" in link.tag:
-                    link.tag.remove('#')
+                    link.delTag('#')
                     if len(link.tag) > 0:
                         self.xLink(link, destination, destination)
                     else:
@@ -347,10 +362,7 @@ class Machine:
         """
         anotherlink = self.isLink(origin, destination)
         if anotherlink[0]:
-            for tag in link.tag:
-                if tag not in anotherlink[1].tag:
-                    anotherlink[1].tag.append(tag)
-                    anotherlink[1].origin.addLink(tag, destination)
+            link = link + anotherlink[1]
             self.links.remove(link)
         else:
             link.origin = origin
