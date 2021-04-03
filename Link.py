@@ -10,6 +10,15 @@ class Link:
 
     def addTag(self, pTag):
         self.tag.append(pTag)
+        self.origin.addLink(pTag,self.destination)
+    
+    def delTag(self, pTag):
+        self.tag.remove(pTag)
+        self.origin.dellLink(pTag,self.destination)
 
     def __str__(self):
         return "go from -{}- to -{}- with -{}".format(self.origin.id, self.destination.id, self.tag)
+
+    def __add__(self, other):
+        not_inTpl = set(self.tag) - set(other.tag)
+        self.tag = list(self.tag) + list(not_inTpl)
