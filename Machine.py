@@ -434,7 +434,7 @@ class Machine:
                     link.origin.final = True
                 if link.origin.isInitial():
                     link.destination.initial = True
-                rm = []
+                result = False
                 for lk in self.links:
                     if link != lk and lk.destination == link.origin:
                         anotherLink = self.isLink(lk.origin, link.destination)
@@ -446,11 +446,11 @@ class Machine:
                             for t in lk.tag[1:]:
                                 nlk.addTag(t)
                             self.links.append(nlk)
-                link.delTag("#")
+                        result = True
+                if result:
+                    link.delTag("#")
                 if len(link.tag) == 0:
                     rm2.append(link)
-                for l in rm:
-                    self.links.remove(l)
         for l in rm2:
             self.links.remove(l)
         self.syncState()
