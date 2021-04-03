@@ -10,11 +10,11 @@ class Link:
 
     def addTag(self, pTag):
         self.tag.append(pTag)
-        self.origin.addLink(pTag,self.destination)
+        self.origin.addLink(pTag,self.origin)
     
     def delTag(self, pTag):
         self.tag.remove(pTag)
-        self.origin.dellLink(pTag,self.destination)
+        self.origin.dellLink(pTag,self.origin)
 
     def __str__(self):
         return "go from -{}- to -{}- with -{}".format(self.origin.id, self.destination.id, self.tag)
