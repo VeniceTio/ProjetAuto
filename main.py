@@ -13,12 +13,14 @@ def main(argv):
 
     """
     machine = Machine()
-    machine.loadFromFile("Instances/AFN/afn2.txt")
+    machine.loadFromFile("Instances/eAFN/eafn2.txt")
+
     print(machine)
-    list, final, init = machine.determineAFN()
-    machine.determineAFNtofile(list,final,init)
-    print(list)
-   # print(machine)
+    #list, final, init = machine.determineAFN()
+    #machine.determineAFNtofile(list,final,init)
+    machine.fusionEquivalence()
+    print(machine)
+    # print(machine)
     #machine.minMoore()
     #print(machine)
 

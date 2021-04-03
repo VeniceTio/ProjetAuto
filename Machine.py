@@ -71,7 +71,7 @@ class Machine:
             links = self.links
         result = [False]
         for link in links:
-            if link.origin == pOrigin and link.destination == pDestination:
+            if link.origin.id == pOrigin.id and link.destination.id == pDestination.id:
                 result = [True, link]
                 break
         return result
@@ -79,7 +79,7 @@ class Machine:
     def canPass(self, char):
         result = False
         for link in self.links:
-            if link.origin == self.current and char in link.tag:
+            if link.origin.id == self.current.id and char in link.tag:
                 result = True
                 self.current = link.destination
         return result
@@ -206,64 +206,63 @@ class Machine:
         self.initMachine(nbnewState, inits, finals, states, links)
 
     def determineAFN(self):
-        liste = [[self.initial,],]
+        liste = [[self.initial, ], ]
         tpls = [tuple(self.initial)]
         nblettre = len(self.alphabet)
         j = 0
-        #print(liste)
+        # print(liste)
         while j != len(tpls):
             for idlettre in range(nblettre):
                 tpl = []
                 for e in liste[j][0]:
-                    #print("state : " + str(e) + self.alphabet[idlettre])
+                    # print("state : " + str(e) + self.alphabet[idlettre])
                     direction2 = self.states[e].next[self.alphabet[idlettre]]
                     not_inTpl = set(direction2) - set(tpl)
                     tpl = list(tpl) + list(not_inTpl)
-                #print(tpl)
+                # print(tpl)
                 liste[j].append(tpl)
                 if tuple(tpl) not in tpls:
                     tpls.append(tuple(tpl))
-                    liste.append([tpl,])
-            j+=1
+                    liste.append([tpl, ])
+            j += 1
         print(liste)
         return self.cleandeter(liste, tpls)
 
-
     def cleandeter(self, tab, tpls):
         g = 0
-        tab2 = [[-1 for i in range(len(tab)+1)] for e in tpls]
+        tab2 = [[-1 for i in range(len(tab) + 1)] for e in tpls]
         final = []
         init = []
         for j in range(len(tpls)):
             for i in range(len(tpls[j])):
                 if tpls[j][i] in self.final and j not in final:
                     final.append(j)
-            if len(tpls[j])==1 and tpls[j][0] in self.initial and j not in init:
+            if len(tpls[j]) == 1 and tpls[j][0] in self.initial and j not in init:
                 init.append(j)
 
         for e in tpls:
             for i in range(len(tpls)):
                 for j in range(len(self.alphabet) + 1):
-                    #print(str(tab[i][j]) + " i " + str(i) + " j " + str(j))
+                    # print(str(tab[i][j]) + " i " + str(i) + " j " + str(j))
                     if tuple(tab[i][j]) == e:
                         tab2[i][j] = g
             g += 1
         return tab2, final, init
 
-    def determineAFNtofile(self,tab, final, init, path="defaultAFD"):
+    def determineAFNtofile(self, tab, final, init, path="defaultAFD"):
         chaine = ""
         for l in self.alphabet:
             chaine += l
-        chaine +="\n" + str(len(tab)) + "\n"
+        chaine += "\n" + str(len(tab)) + "\n"
         for e in init:
             chaine += str(e) + " "
         chaine += "\n"
         for e in final:
             chaine += str(e) + " "
         for j in range(len(tab)):
-            for i in range(1, len(self.alphabet)+1):
-                chaine += "\n" + str(tab[j][0]) + " " + str(tab[j][i]) + " " + str(self.alphabet[i-1])
-        file = open(path,"w")
+            for i in range(1, len(self.alphabet) + 1):
+                chaine += "\n" + str(tab[j][0]) + " " + str(tab[j][i]) + " " + str(self.alphabet[i - 1])
+        file = open(path, "w")
         file.write(chaine)
         file.close()
 
@@ -283,35 +282,80 @@ class Machine:
         hasChange = True
         while hasChange:
             hasChange = False
-            for i in range(len(self.states)):
-                for j in range(len(self.states)):
-                    if i !=j:
-                        if self.states[i] == self.states[j]:
-                            self.updateStateStatus(self.states[i], self.states[j])
-                            self.states[j].xfusion(self.states[i])
-                            self.synchroLink(self.states[i], self.states[j])
-                            self.states[i].clear()
-                            hasChange = True
+            for state in self.states:
+                chaine = []
+                bool, chaine = self.isboucle(state.id, chaine)
+                print(" - " + str(state.id) + " " + str(bool))
+                if bool == 1:
+                    id = chaine.index(chaine[-1])
+                    for i in range(id, len(chaine) - 2):
+                        print(str(chaine[i]) + " -> " + str(chaine[i+1]))
+                        self.updateStateStatus(self.states[chaine[i]], self.states[chaine[i + 1]])
+                        self.synchroLink(self.states[chaine[i]], self.states[chaine[i + 1]])
+                        self.states[chaine[i + 1]].xfusion(self.states[chaine[i]])
+                        self.states[chaine[i]].clear()
+                    # hasChange = True
+
+    def isboucle(self, state, chaine):
+        result = 0
+        if state not in chaine:
+            for link in self.links:
+                if link.origin.id == state and "#" in link.tag:
+                    # print(" exec " + pword + " from " + str(link.origin.id) + " to " + str(
+                    #    link.destination.id) + " by " + str(pcurrent))
+                    chaine.append(state)
+                    result, chaine = self.isboucle(link.destination.id, chaine)
+                if result == 1:
+                    break
+        elif state in chaine:
+            result = 1
+            chaine.append(state)
+        return result, chaine
 
     def synchroLink(self, origin, destination):
+        rm = []
         for link in self.links:
-            if link.destination.id == origin.id:
-                anotherLink = self.isLink(link.origin,destination)
+            if (link.destination.id == origin.id and link.origin.id == destination.id) or \
+                    (link.destination.id == destination.id and link.origin.id == origin.id) or \
+                    (link.destination.id == origin.id and link.origin.id == origin.id):
+                if "#" in link.tag:
+                    link.tag.remove("#")
+                anotherLink = self.isLink(destination, destination)
                 if anotherLink[0]:
                     anotherLink[1].add(link)
+                    rm.append(link)
                 else:
                     link.changeDest(destination)
+                    link.changeOrigin(destination)
+            elif link.destination.id == origin.id:
+                anotherLink = self.isLink(link.origin, destination)
+                if anotherLink[0]:
+                    anotherLink[1].add(link)
+                    rm.append(link)
+                else:
+                    link.changeDest(destination)
+            elif link.origin.id == origin.id:
+                anotherLink = self.isLink(destination, link.destination)
+                if anotherLink[0]:
+                    anotherLink[1].add(link)
+                    rm.append(link)
+                else:
+                    link.changeOrigin(destination)
+        for link in rm:
+            self.links.remove(link)
 
     def updateStateStatus(self, pfrom, pto):
         if pfrom.isInitial():
             if not pto.isInitial():
                 pto.initial = True
                 self.initial.append(pto.id)
+            pfrom.initial = False
             self.initial.remove(pfrom.id)
         if pfrom.isFinal():
             if not pto.isFinal():
                 pto.final = True
                 self.final.append(pto.id)
+            pfrom.final = False
             self.final.remove(pfrom.id)
 
     def fusionState(self, origin, destination):

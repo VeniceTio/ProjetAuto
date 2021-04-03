@@ -21,17 +21,21 @@ class State:
         return self.initial
 
     def addLink(self, pTag, pState):
-        self.next[pTag].append(pState.id)
+        if pState.id not in self.next[pTag]:
+            self.next[pTag].append(pState.id)
 
     def dellLink(self, pTag, pState):
-        self.next[pTag].remove(pState.id)
+        if pState.id not in self.next[pTag]:
+            self.next[pTag].remove(pState.id)
 
     def clear(self):
         self.nbLink = 0
         self.final = False
         self.initial = False
-        self.next = {}
+        for key in self.next.keys():
+            self.next[key] = []
 
+    """
     def __eq__(self, other):
         result = True
         for value in other.next.values():
@@ -41,14 +45,19 @@ class State:
             if other.id in value:
                 result = False
         return (other.id in self.next["#"] and self.id in other.next["#"]) or result
+    """
 
     def xfusion(self, other):
         for i in self.next.keys():
             if self.next[i] != other.next[i]:
                 not_inTpl = set(self.next[i]) - set(other.next[i])
-                self.next[i] = list(self.next[i]) + list(not_inTpl)
+                self.next[i] = other.next[i] + list(not_inTpl)
+        self.updatedestination(other.id, self.id)
         if self.id in self.next["#"]:
             self.next["#"].remove(self.id)
+        if other.id in other.next["#"]:
+            other.next["#"].remove(other.id)
+
 
     def updatedestination(self, pfrom, pto):
         for key in self.next.keys():
