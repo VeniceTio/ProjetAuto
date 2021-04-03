@@ -37,7 +37,7 @@ def main(argv):
     elif mode == 2:
         machine.loadFromFile(input)
         list, final, init = machine.determineAFN()
-        machine.determineAFNtofile(list,final,init,output)
+        machine.determineAFNtofile(list, final, init, output)
     elif mode == 3:
         machine.loadFromFile(input,True)
         machine.fusionEquivalence()
