@@ -426,6 +426,45 @@ class Machine:
                 list[i][j] -= 1
         return list
 
+    def supetransition(self):
+        rm2 = []
+        for link in self.links:
+            if "#" in link.tag:
+                if link.destination.isFinal():
+                    link.origin.final = True
+                if link.origin.isInitial():
+                    link.destination.initial = True
+                rm = []
+                for lk in self.links:
+                    if link != lk and lk.destination == link.origin:
+                        anotherLink = self.isLink(lk.origin, link.destination)
+                        if anotherLink[0]:
+                            anotherLink[1].add(lk)
+                            #rm.append(lk)
+                        else:
+                            nlk = Link(lk.origin, link.destination, lk.tag[0])
+                            for t in lk.tag[1:]:
+                                nlk.addTag(t)
+                            self.links.append(nlk)
+                link.delTag("#")
+                if len(link.tag) == 0:
+                    rm2.append(link)
+                for l in rm:
+                    self.links.remove(l)
+        for l in rm2:
+            self.links.remove(l)
+        self.syncState()
+
+    def syncState(self):
+        self.resetState()
+        for link in self.links:
+            for t in link.tag:
+                link.origin.next[t].append(link.destination.id)
+
+    def resetState(self):
+        for state in self.states:
+            state.initNext(self.alphabet)
+
     def __str__(self):
         desc = "Machine : \n - Alphabet : {} \n - nbState : {}\n - initial state : {}\n - final state {}\n".format(
             self.alphabet, self.nbState, self.initial, self.final)

@@ -20,6 +20,8 @@ def main(argv):
     #machine.determineAFNtofile(list,final,init)
     machine.fusionEquivalence()
     print(machine)
+    machine.supetransition()
+    print(machine)
     # print(machine)
     #machine.minMoore()
     #print(machine)

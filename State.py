@@ -28,6 +28,11 @@ class State:
         if pState.id not in self.next[pTag]:
             self.next[pTag].remove(pState.id)
 
+    def initNext(self,pAlphabet):
+        self.next = {}
+        for e in pAlphabet:
+            self.next[e] = []
+
     def clear(self):
         self.nbLink = 0
         self.final = False

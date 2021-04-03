@@ -11,7 +11,7 @@ class Link:
     def addTag(self, pTag):
         self.tag.append(pTag)
         self.origin.addLink(pTag, self.origin)
-    
+
     def delTag(self, pTag):
         self.tag.remove(pTag)
         self.origin.dellLink(pTag, self.destination)
