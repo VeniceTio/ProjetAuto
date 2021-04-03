@@ -24,6 +24,9 @@ class State:
     def addLink(self, pTag, pState):
         self.next[pTag].append(pState.id)
 
+    def dellLink(self, pTag, pState):
+        self.next[pTag].remove(pState.id)
+
     def clear(self):
         self.nbLink = 0
         self.final = False
