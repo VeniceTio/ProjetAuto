@@ -12,7 +12,7 @@ class Machine:
         self.links = []
         self.current = State()
 
-    def loadFromFile(self, filename):
+    def loadFromFile(self, filename, jok=False):
         try:
             file = open(filename, "r")
         except:
@@ -25,7 +25,8 @@ class Machine:
         file.close()
 
         self.alphabet = [e for e in lines[0]]
-        self.alphabet.append("#")
+        if jok:
+            self.alphabet.append("#")
         self.nbState = int(lines[1])
         self.initial = [int(e) for e in lines[2].split()]
         self.final = [int(e) for e in lines[3].split()]
@@ -262,6 +263,24 @@ class Machine:
         for j in range(len(tab)):
             for i in range(1, len(self.alphabet) + 1):
                 chaine += "\n" + str(tab[j][0]) + " " + str(tab[j][i]) + " " + str(self.alphabet[i - 1])
+        file = open(path, "w")
+        file.write(chaine)
+        file.close()
+
+    def toFile(self, path):
+        chaine = ""
+        for l in self.alphabet:
+            if l != "#":
+                chaine += l
+        chaine += "\n" + str(self.nbState) + "\n"
+        for e in self.initial:
+            chaine += str(e) + " "
+        chaine += "\n"
+        for e in self.final:
+            chaine += str(e) + " "
+        for link in self.links:
+            for t in link.tag:
+                chaine += "\n" + str(link.origin.id) + " " + str(link.destination.id) + " " + str(t)
         file = open(path, "w")
         file.write(chaine)
         file.close()
