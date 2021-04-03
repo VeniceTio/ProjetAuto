@@ -16,6 +16,10 @@ class Link:
         self.tag.remove(pTag)
         self.origin.dellLink(pTag,self.origin)
 
+    def changeDest(self, newdestination):
+        self.origin.updatedestination(self.destination.id, newdestination.id)
+        self.destination = newdestination
+
     def __str__(self):
         return "go from -{}- to -{}- with -{}".format(self.origin.id, self.destination.id, self.tag)
 

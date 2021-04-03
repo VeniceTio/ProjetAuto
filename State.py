@@ -1,4 +1,3 @@
-
 class State:
     def __init__(self, pid=-1, pAlphabet=[]):
         self.id = pid
@@ -51,6 +50,9 @@ class State:
         if self.id in self.next["#"]:
             self.next["#"].remove(self.id)
 
+    def updatedestination(self, pfrom, pto):
+        for key in self.next.keys():
+            list_replace(self.next[key], pfrom, pto)
 
     def __str__(self):
         desc = " State : {}\n    - number of link : {}".format(self.id, self.nbLink)
@@ -61,3 +63,13 @@ class State:
         desc += "\n    - connected to : " + str(self.next)
         return desc
 
+
+def list_replace(lst, old=1, new=10):
+    """replace list elements (inplace)"""
+    i = -1
+    try:
+        while 1:
+            i = lst.index(old, i + 1)
+            lst[i] = new
+    except ValueError:
+        pass

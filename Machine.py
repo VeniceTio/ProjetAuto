@@ -25,6 +25,7 @@ class Machine:
         file.close()
 
         self.alphabet = [e for e in lines[0]]
+        self.alphabet.append("#")
         self.nbState = int(lines[1])
         self.initial = [int(e) for e in lines[2].split()]
         self.final = [int(e) for e in lines[3].split()]
@@ -289,6 +290,7 @@ class Machine:
                             self.updateStateStatus(self.states[i], self.states[j])
                             self.states[j].xfusion(self.states[i])
                             self.synchroLink(self.states[i], self.states[j])
+                            self.states[i].clear()
                             hasChange = True
 
     def synchroLink(self, origin, destination):
