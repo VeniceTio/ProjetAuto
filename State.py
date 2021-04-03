@@ -33,6 +33,16 @@ class State:
         self.initial = False
         self.next = {}
 
+    def __eq__(self, other):
+        return other.id in self.next["#"] and self.id in other.next["#"]
+
+    def xfusion(self, other):
+        for i in range(len(self.next)):
+            if self.next[i] != other.next[i]:
+                not_inTpl = set(self.next[i]) - set(other.next[i])
+                self.next[i] = list(self.next[i]) + list(not_inTpl)
+        other.clear()
+
     def __str__(self):
         desc = " State : {}\n    - number of link : {}".format(self.id, self.nbLink)
         if self.final:
